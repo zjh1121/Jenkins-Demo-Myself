@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jenkins CI/CD 静态前端演示</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #e5e7eb;
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    body.dark {
+      --bg: #0f172a;
+      --card: #111827;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --primary: #60a5fa;
+      --primary-dark: #3b82f6;
+      --border: #1f2937;
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    body {
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: 0.3s ease;
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 99;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    body.dark .navbar {
+      background: rgba(17, 24, 39, 0.82);
+    }
+
+    .nav-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      align-items: center;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .theme-btn {
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      padding: 9px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .hero {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 70px 24px 40px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-size: 52px;
+      line-height: 1.12;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.8;
+      margin-bottom: 28px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 13px 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 800;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--card);
+    }
+
+    .terminal-card {
+      background: #020617;
+      color: #d1fae5;
+      padding: 24px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .terminal-top {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .red { background: #ef4444; }
+    .yellow { background: #f59e0b; }
+    .green { background: #22c55e; }
+
+    .terminal-line {
+      font-family: Consolas, monospace;
+      line-height: 1.8;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .section {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 34px;
+    }
+
+    .section-title h2 {
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+
+    .section-title p {
+      color: var(--muted);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 34px;
+      font-weight: 900;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 26px;
+      box-shadow: var(--shadow);
+      transition: 0.25s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+    }
+
+    .icon {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--primary);
+      font-size: 24px;
+      margin-bottom: 18px;
+    }
+
+    .feature-card h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .feature-card p {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .pipeline {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+
+    .step {
+      position: relative;
+      padding: 20px;
+      background: var(--bg);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .step-num {
+      width: 34px;
+      height: 34px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .step h4 {
+      margin-bottom: 8px;
+    }
+
+    .step p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .deploy-box {
+      margin-top: 28px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 22px;
+      color: #fff;
+      padding: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .deploy-box h3 {
+      font-size: 26px;
+      margin-bottom: 8px;
+    }
+
+    .deploy-box p {
+      opacity: 0.9;
+    }
+
+    .status {
+      background: rgba(255, 255, 255, 0.16);
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-weight: 800;
+    }
+
+    footer {
+      text-align: center;
+      padding: 36px 24px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 40px;
+      }
+
+      .stats,
+      .cards,
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="logo">Jenkins Demo</div>
+      <ul class="nav-links">
+        <li><a href="#features">功能</a></li>
+        <li><a href="#pipeline">流程</a></li>
+        <li><a href="#deploy">部署状态</a></li>
+      </ul>
+      <button class="theme-btn" onclick="toggleTheme()">切换主题</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <span class="badge">CI/CD 自动部署演示</span>
+      <h1>我的 Jenkins 静态前端部署页面</h1>
+      <p>
+        这是一个稍微复杂一点的静态前端页面，用来测试 Jenkins 从 GitHub 拉取代码、
+        执行 Pipeline、通过 SSH 部署到 Nginx 服务器的完整流程。
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#pipeline">查看部署流程</a>
+        <a class="btn btn-outline" href="#deploy">查看当前版本</a>
+      </div>
+    </div>
+
+    <div class="terminal-card">
+      <div class="terminal-top">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+      </div>
+      <div class="terminal-line">$ git push origin master</div>
+      <div class="terminal-line">$ Jenkins checkout source code</div>
+      <div class="terminal-line">$ run CI checks</div>
+      <div class="terminal-line">$ scp index.html to server</div>
+      <div class="terminal-line">$ deploy success ✅</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-number" data-target="4">0</div>
+        <div class="stat-label">Pipeline 阶段</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" data-target="1">0</div>
+        <div class="stat-label">部署服务器</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" data-target="8080">0</div>
+        <div class="stat-label">Jenkins 端口</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" data-target="100">0</div>
+        <div class="stat-label">部署完成率</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="section-title">
+      <h2>页面功能</h2>
+      <p>这个页面包含布局、卡片、动画、主题切换和简单 JavaScript 效果</p>
+    </div>
+
+    <div class="cards">
+      <div class="feature-card">
+        <div class="icon">🚀</div>
+        <h3>自动部署</h3>
+        <p>Jenkins 构建成功后，会自动通过 SSH 把页面文件上传到服务器指定目录。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="icon">🔧</div>
+        <h3>Pipeline 管理</h3>
+        <p>所有流程都写在 Jenkinsfile 中，方便维护、修改和版本管理。</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="icon">🌐</div>
+        <h3>Nginx 访问</h3>
+        <p>页面最终部署到 Nginx 网站目录，可以通过域名进行访问。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="pipeline">
+    <div class="section-title">
+      <h2>CI/CD 流程</h2>
+      <p>从代码提交到服务器部署的完整过程</p>
+    </div>
+
+    <div class="pipeline">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h4>本地修改</h4>
+          <p>修改 index.html 页面内容。</p>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <h4>提交代码</h4>
+          <p>执行 git add、commit、push。</p>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <h4>Jenkins 构建</h4>
+          <p>Jenkins 拉取最新代码并执行 Pipeline。</p>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <h4>部署服务器</h4>
+          <p>通过 SSH 和 SCP 上传页面。</p>
+        </div>
+
+        <div class="step">
+          <div class="step-num">5</div>
+          <h4>访问页面</h4>
+          <p>Nginx 返回最新部署结果。</p>
+        </div>
+      </div>
+
+      <div class="deploy-box" id="deploy">
+        <div>
+          <h3>当前部署版本：v3.0.0</h3>
+          <p id="timeText">正在获取部署时间...</p>
+        </div>
+        <div class="status">状态：运行正常 ✅</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Jenkins CI/CD 静态前端演示页面 · 部署路径：/var/www/html/jenkins-demo/</p>
+  </footer>
+
+  <script>
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+      const mode = document.body.classList.contains("dark") ? "dark" : "light";
+      localStorage.setItem("theme", mode);
+    }
+
+    function loadTheme() {
+      const mode = localStorage.getItem("theme");
+      if (mode === "dark") {
+        document.body.classList.add("dark");
+      }
+    }
+
+    function updateTime() {
+      const now = new Date();
+      const text = now.toLocaleString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+
+      document.getElementById("timeText").innerText =
+        "页面加载时间：" + text;
+    }
+
+    function animateNumbers() {
+      const numbers = document.querySelectorAll(".stat-number");
+
+      numbers.forEach(function (item) {
+        const target = Number(item.getAttribute("data-target"));
+        let current = 0;
+        const step = Math.max(1, Math.floor(target / 80));
+
+        const timer = setInterval(function () {
+          current += step;
+
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
+
+          item.innerText = current;
+        }, 16);
+      });
+    }
+
+    loadTheme();
+    updateTime();
+    animateNumbers();
+  </script>
+</body>
+</html>
