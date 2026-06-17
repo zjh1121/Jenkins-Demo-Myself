@@ -12,10 +12,10 @@ pipeline {
         stage('CI - 检查静态页面') {
             steps {
                 sh '''
-                    test -f index.html
-                    echo "index.html 文件存在"
+                    test -f Jenkins.html
+                    echo "Jenkins.html 文件存在"
 
-                    grep -q "Jenkins" index.html
+                    grep -q "Jenkins" Jenkins.html
                     echo "页面内容检查通过"
                 '''
             }
@@ -33,7 +33,7 @@ pipeline {
                     sh '''
                         ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER"@8.136.188.3 "mkdir -p /var/www/html/jenkins-demo"
 
-                        scp -i "$SSH_KEY" -o StrictHostKeyChecking=no index.html "$SSH_USER"@8.136.188.3:/var/www/html/jenkins-demo/index.html
+                        scp -i "$SSH_KEY" -o StrictHostKeyChecking=no Jenkins.html "$SSH_USER"@8.136.188.3:/var/www/html/jenkins-demo/index.html
                     '''
                 }
             }
