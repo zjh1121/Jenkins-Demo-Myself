@@ -31,9 +31,9 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER"@8.136.188.3 "mkdir -p /var/www/html/jenkins-demo"
+                        ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER"@8.136.188.3 "mkdir -p /var/www/html/jenkins-myself"
 
-                        scp -i "$SSH_KEY" -o StrictHostKeyChecking=no Jenkins.html "$SSH_USER"@8.136.188.3:/var/www/html/jenkins-demo/index.html
+                        scp -i "$SSH_KEY" -o StrictHostKeyChecking=no Jenkins.html "$SSH_USER"@8.136.188.3:/var/www/html/jenkins-myself/index.html
                     '''
                 }
             }
@@ -50,8 +50,8 @@ pipeline {
                 ]) {
                     sh '''
                         ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no "$SSH_USER"@8.136.188.3 "
-                            ls -la /var/www/html/jenkins-demo &&
-                            cat /var/www/html/jenkins-demo/index.html
+                            ls -la /var/www/html/jenkins-myself &&
+                            cat /var/www/html/jenkins-myself/index.html
                         "
                     '''
                 }
